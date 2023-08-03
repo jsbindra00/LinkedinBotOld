@@ -28,7 +28,9 @@ def ScrollOnElement(element, element_css_selector, sleep_duration=0):
 
 
 # f = open("C://Users//jasbi//Desktop//creds.txt").readlines()
-f = []
+
+# enter email, password. email should be 0th element. password should be 1st element
+f = ["email", "password"]
 username = f[0].strip()
 password = f[1].strip()
 # print(username)
@@ -241,7 +243,65 @@ def FindConnections():
             print(e)
 
 
-FindConnections()
+def FindConnectionsFromSearch(searchQuery):
+    Login()
+    browser.get(searchQuery)
+    while True:
+        try:
+            # wait_for_page_load(browser)
+            # wait = WebDriverWait(browser, 10)
+            button_xpath = "/html/body/div[6]/div[3]/div/div/div/div/div[2]/div/div/main/ul/li[2]/div/button"
+
+            wait = WebDriverWait(browser, 10)
+            element = wait.until(
+                EC.presence_of_element_located((By.XPATH, button_xpath)),
+            )
+            element = wait.until(EC.element_to_be_clickable((By.XPATH, button_xpath)))
+            browser.execute_script("arguments[0].click();", element)
+            # button = browser.find_element(By.CSS_SELECTOR, "button[aria-label='See all People you may know from University of Bath']")
+            # browser.execute_script("document.querySelector('{}').click()".format("button[aria-label='See all People you may know from University of Bath']"))
+
+            pop_up_box_selector = ".artdeco-modal__content.discover-cohort-recommendations-modal__content.ember-view"
+            pop_up_box = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, pop_up_box_selector))
+            )
+
+            while True:
+                ActionChains(browser).move_to_element(pop_up_box).click()
+                WebDriverWait(browser, 10).until(
+                    EC.element_to_be_clickable(
+                        (By.XPATH, "//button[.//span[text()='Connect']]")
+                    )
+                )
+
+                buttons = browser.find_elements(
+                    By.XPATH, "//button[.//span[text()='Connect']]"
+                )
+                for button in buttons:
+                    try:
+                        button.click()
+                        time.sleep(0.5)
+                    except:
+                        continue
+                for i in range(0, 5):
+                    ScrollOnElement(pop_up_box, pop_up_box_selector, 1)
+
+            time.sleep(10000)
+        except Exception as e:
+            break
+            print(e)
+
+
+# FindConnections()
+
+
+searchQuery = f"https://www.linkedin.com/search/results/people/?keywords=react%20native&origin=CLUSTER_EXPANSION&sid=ESy"
+# FindConnectionsFromSearch(searchQuery=searchQuery)
+SnipeUser(
+    "https://www.linkedin.com/search/results/people/?keywords=react%20native&origin=CLUSTER_EXPANSION&sid=ESy"
+)
+
+
 # VisitConnections()
 # SnipeUser(
 #     f"https://www.linkedin.com/search/results/people/?connectionOf=%5B%22ACoAABZECjMBbg_GCEGPDRUqMv_x0ydOeyGALO8%22%5D&network=%5B%22F%22%2C%22S%22%5D&origin=MEMBER_PROFILE_CANNED_SEARCH&page=34&sid=o-f"
